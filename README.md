@@ -44,7 +44,7 @@ Check out the <a href='https://clar-server.herokuapp.com/api'>Swagger</a> docume
 
 ## Running the app locally
 
-`yarn start:dev`
+`npm run start:dev`
 
 ## Environment
 
