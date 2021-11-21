@@ -1,4 +1,6 @@
-interface Response {
+import { ApiProperty } from '@nestjs/swagger';
+
+export interface Response {
   meta_data: {
     latitude: string | null;
     longitude: null;
@@ -11,8 +13,8 @@ interface Response {
     is_healthy_probability: string;
     is_healthy: boolean;
     diseases: DISEASE[];
-    diseases_simple: SIMPLE_DISEASE[]
-  }
+    diseases_simple: SIMPLE_DISEASE[];
+  };
 }
 
 interface Image {
@@ -39,12 +41,11 @@ interface Suggestion {
     };
     wiki_image: {
       value: string;
-    }
+    };
   };
   probability: string;
   confirmed: boolean;
-  similar_images: SIMILAR_IMAGES[]
-
+  similar_images: SIMILAR_IMAGES[];
 }
 
 interface SIMILAR_IMAGES {
@@ -56,7 +57,7 @@ interface DISEASE {
   classification: string[];
   name: string;
   probability: string;
-};
+}
 
 interface SIMPLE_DISEASE {
   name: string;

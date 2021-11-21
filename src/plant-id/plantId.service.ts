@@ -1,14 +1,24 @@
 import { Injectable } from '@nestjs/common';
+import { AbstractService } from '../common/abstract.service';
 import axios from 'axios';
+import { PlantId } from './entities/plant-id.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class PlantIdService {
+export class PlantIdService extends AbstractService {
+  constructor(
+    @InjectRepository(PlantId)
+    private readonly plantRepository: Repository<PlantId>,
+  ) {
+    super(plantRepository);
+  }
   async identify(base64: string) {
     let files = [];
     files.push(base64);
 
     const sendData = {
-      api_key: 'Wv5YK9mlwd9bipqvyUsijKI89Ai7KWrOxRYlapNrOwtHq0KMTk',
+      api_key: process.env.PLANT_ID_KEY,
       images: files,
       modifiers: ['crops_fast', 'similar_images', 'health_all'],
       plant_language: 'en',

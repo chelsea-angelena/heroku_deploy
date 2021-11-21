@@ -12,11 +12,11 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '1000mb' }));
   app.setGlobalPrefix('api');
 
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     transform: true,
-  //   }),
-  // );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      disableErrorMessages: true,
+    }),
+  );
 
   const options = new DocumentBuilder()
     .setTitle('Image App Api')
