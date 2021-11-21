@@ -6,8 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "17.x.x",
-    "yarn": "1.22.x"
+    "node": "14.x.x",
+    "npm": "8.x.x"
   },
   "scripts": {
     "prebuild": "rimraf dist",
@@ -38,10 +38,9 @@
     "body-parser": "^1.19.0",
     "clarifai": "^2.9.1",
     "clarifai-nodejs-grpc": "^7.10.0",
-    "class-transformer": "^0.5.0",
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
-    "passport": "^0.5.0",
+    "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "pg": "^8.7.1",

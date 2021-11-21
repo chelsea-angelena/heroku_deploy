@@ -6,9 +6,11 @@ Returns plant identification information for images posted to the 'identify' end
 
 Check out the <a href='https://clar-server.herokuapp.com/api'>Swagger</a> documentation
 
+(local: <a href='http://localhost:5002/api'>Swagger</a> documentation)
+
 ## Installation
 
-`yarn install`
+`npm install`
 
 ## Dependencies
 
@@ -35,7 +37,12 @@ Check out the <a href='https://clar-server.herokuapp.com/api'>Swagger</a> docume
 - swagger-ui-express
 - typeorm
 
-## Running the app
+## Running the app with Docker
+
+- update POSTGRES_HOST to be 'db' in the .env file
+- make run-local
+
+## Running the app locally
 
 `yarn start:dev`
 
