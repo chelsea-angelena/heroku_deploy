@@ -42,6 +42,18 @@ Check out the <a href='https://clar-server.herokuapp.com/api'>Swagger</a> docume
 - update POSTGRES_HOST to be 'db' in the .env file
 - make run-local
 
+## Deploying The Docker Image
+
+- docker tag <image> registry.heroku.com/<app>/<process-type>
+- docker push registry.heroku.com/<app>/<process-type>
+- heroku container:push release
+- heroku container:release web release
+
+ie:
+
+- docker tag clar-server-server registry.heroku.com/clar-server/web
+- docker push registry.heroku.com/clar-server/web
+
 ## Running the app locally
 
 `npm run start:dev`
