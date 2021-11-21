@@ -1,8 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { AbstractService } from '../common/abstract.service';
 import axios from 'axios';
+import { PlantId } from './entities/plant-id.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
-export class PlantIdService {
+export class PlantIdService extends AbstractService {
+  constructor(
+    @InjectRepository(PlantId)
+    private readonly plantRepository: Repository<PlantId>,
+  ) {
+    super(plantRepository);
+  }
   async identify(base64: string) {
     let files = [];
     files.push(base64);
