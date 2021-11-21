@@ -10,28 +10,6 @@ var app = express();
 var jwt = require('express-jwt');
 var jwks = require('jwks-rsa');
 
-// @Injectable()
-// export class JwtStrategy extends PassportStrategy(Strategy) {
-//   constructor(private readonly userService: UsersService) {
-//     super({
-//       audience: process.env.JWT_AUDIENCE,
-//       issuer: process.env.JWT_URL,
-//       algorithms: ['RS256'],
-//       jwtFromRequest: ExtractJwt.fromExtractors([
-//         (request: Request) => {
-//           return request?.cookies?.Authentication;
-//           currentHashedRefreshToken;
-//         },
-//       ]),
-//       secretOrKey: process.env.JWT_ACCESS_TOKEN_SECRET,
-//     });
-//   }
-
-//   async validate(payload: TokenPayload) {
-//     return this.userService.getById(payload.userId);
-//   }
-// }
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly userService: UsersService) {
@@ -50,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: UserPayload): Promise<any> {
+  validate(payload: UserPayload) {
     return this.userService.getUser(payload);
   }
 }

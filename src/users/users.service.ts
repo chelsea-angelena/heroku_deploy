@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { UserPayload } from './interface/user';
 
 @Injectable()
 export class UsersService {
@@ -11,13 +10,11 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async getUser(payload: UserPayload) {
+  async getUser(payload) {
     const { iss, sub, iat, exp, azp, scope } = payload;
     const findUser = {
       iss,
       sub,
-      iat,
-      exp,
       azp,
       scope,
     };

@@ -11,12 +11,15 @@ export class User extends BaseEntity {
   sub: string;
 
   @Column({ nullable: true })
+<<<<<<< HEAD
   iat: number;
 
   @Column({ nullable: true })
   exp: number;
 
   @Column({ nullable: true })
+=======
+>>>>>>> 6bd5b5c (added dependenccies)
   azp: string;
 
   @Column({ nullable: true })
