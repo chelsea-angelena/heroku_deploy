@@ -1,73 +1,124 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Basic NestJs/Postgres Api - deployed with Heroku
+
+Returns plant identification information for images posted to the 'identify' endpoint in base64
+
+Check out the <a href='https://clar-server.herokuapp.com/api'>Swagger</a> documentation
+
+(local: <a href='http://localhost:5002/api'>Swagger</a> documentation)
 
 ## Installation
 
-```bash
-$ npm install
+`npm install`
+
+## Dependencies
+
+- @nestjs/mapped-types
+- @nestjs/passport
+- @nestjs/platform-express
+- @nestjs/swagger
+- @nestjs/typeorm
+- @types/multer
+- bcryptjs
+- body-parser
+- clarifai
+- clarifai-nodejs-grpc
+- class-transformer
+- class-validator
+- cookie-parser
+- passport
+- passport-jwt
+- passport-local
+- pg
+- reflect-metadata
+- rimraf
+- rxjs
+- swagger-ui-express
+- typeorm
+
+## Running the app with Docker
+
+- update POSTGRES_HOST to be 'db' in the .env file
+- make run-local
+
+## Running the app locally
+
+`yarn start:dev`
+
+## Environment
+
+- Add a .env (set to local environment)
+
+```
+MODE=devleopment
+POSTGRES_HOST=localhost
+POSTGRES_DATABASE=<db_name>
+POSTGRES_USER=<db_user>
+POSTGRES_PORT=5432
+POSTGRES_PASSWORD=<db_password>
 ```
 
-## Running the app
+## Deploy To Heroku
 
-```bash
-# development
-$ npm run start
+These are the steps for deploying an app to heroku:
 
-# watch mode
-$ npm run start:dev
+- heroku login
+- heroku create <app name>
+- package.json: node engine:
 
-# production mode
-$ npm run start:prod
+```
+"engines": {
+    "node": "16.x.x",
+    "yarn": '1.2.x
+  },
+
 ```
 
-## Test
+- add a Procfile (no file type appended )
 
-```bash
-# unit tests
-$ npm run test
+```
+web: npm run start:prod
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
-## Support
+change main.js:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+const port = process.env.PORT || 5000;
+await app.listen(port);
+}
 
-## Stay in touch
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Heroku will set the port env variable to a random port, so you need to use process.env.port.
+
+This variable does need to be explicitly set
+
+Set Heroku env vars:
+
+- heroku config:set <key>=<value> --app <appname>
+
+  heroku config:set NODE_ENV=development --app <appname>
+  typescript dev dependencies will be needed at build time
+
+  heroku config:set MODE=production --app <appname>
+  since NODE_ENV = development, we want to set this to production to specifiy SSL true in our database module during production vs local development
+
+  (Even though we are calling this production, this is a 'development deployment' as it is not really configured/scalable for production)
+
+Commit changes, push to: git push heroku main
+
+## Adding Heroku Database
+
+- Log in to heroku -> addons -> search 'postgres'
+- select Heroku Postgres--> Hobby Free
+- open Resources tab --> click on the database name
+- copy down values for the database settings
+- In the terminal at the root dir of your project, add the values from your postgres heroku add on, name them exactly as you have set up in your .env file
+
+  - heroku config:set <var>=<value> --app <app name>
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+[MIT licensed](LICENSE).
