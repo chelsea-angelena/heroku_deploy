@@ -18,7 +18,7 @@ export class PlantIdService extends AbstractService {
     files.push(base64);
 
     const sendData = {
-      api_key: 'Wv5YK9mlwd9bipqvyUsijKI89Ai7KWrOxRYlapNrOwtHq0KMTk',
+      api_key: process.env.PLANT_ID_KEY,
       images: files,
       modifiers: ['crops_fast', 'similar_images', 'health_all'],
       plant_language: 'en',

@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export interface Response {
   meta_data: {
     latitude: string | null;
