@@ -45,7 +45,6 @@ export class ClarifaiService {
 
     try {
       const response = await clar.post('/v2/inputs', data);
-      console.log(response.data, 'response');
       return response.data;
     } catch (err) {
       return err.response;
@@ -184,13 +183,13 @@ export class ClarifaiService {
         },
       },
     };
-    console.log(process.env.USER_ID, process.env.USER_APP_ID);
+
     try {
       const response = await clar.post(
         `v2/models/custom_model/outputs`,
         JSON.stringify(data),
       );
-      console.log(response.data);
+
       return response.data;
     } catch (err) {
       return err;
