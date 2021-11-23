@@ -13,10 +13,7 @@ export class UsersService {
   async getUser(payload) {
     const { iss, sub, iat, exp, azp, scope } = payload;
     const findUser = {
-      iss,
       sub,
-      azp,
-      scope,
     };
     const user = await this.usersRepository.findOne({ where: findUser });
     if (!user) {
