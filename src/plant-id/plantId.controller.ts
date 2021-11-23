@@ -20,7 +20,6 @@ export class PlantIdController {
   constructor(private readonly plantIdService: PlantIdService) {}
 
   @UseGuards(JwtAuthGuard)
-  @HttpCode(200)
   @Post()
   async identify(
     @Req() request: RequestWithUser,
