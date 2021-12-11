@@ -7,14 +7,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      ssl: true,
+      ssl: { rejectUnauthorized: false },
       //  process.env.MODE === 'heroku_deploy',
-      extra: {
-        ssl: { rejectUnauthorized: false },
-        // process.env.MODE === 'heroku_deploy'
-        //   ? { rejectUnauthorized: false }
-        //   : null,
-      },
+      // extra: {
+      //   ssl: { rejectUnauthorized: false },
+      // process.env.MODE === 'heroku_deploy'
+      //   ? { rejectUnauthorized: false }
+      //   : null,
+      // },
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
       port: parseInt(process.env.POSTGRES_PORT),
@@ -22,7 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
       autoLoadEntities: true,
-      // synchronize: true,
+      synchronize: true,
     }),
   ],
 })
