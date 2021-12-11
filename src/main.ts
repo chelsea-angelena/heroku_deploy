@@ -1,22 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { urlencoded, json } from 'express';
+import { Logger } from './logs/Logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 5002;
-  app.enableCors();
-  app.use(json({ limit: '1000mb' }));
-  app.use(urlencoded({ extended: true, limit: '1000mb' }));
-  app.setGlobalPrefix('api');
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      disableErrorMessages: true,
-    }),
-  );
+  app.enableCors();
+
+  app.use(json({ limit: '1000mb' }));
+
+  app.use(urlencoded({ extended: true, limit: '1000mb' }));
+
+  app.setGlobalPrefix('api');
 
   const options = new DocumentBuilder()
     .setTitle('Image App Api')
@@ -31,5 +29,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, Document);
 
   await app.listen(port);
+  Logger.info(`Listening on port: ${await app.getUrl()}`);
 }
 bootstrap();

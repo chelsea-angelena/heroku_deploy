@@ -1,19 +1,10 @@
-import {
-  HttpCode,
-  Req,
-  UseGuards,
-  Inject,
-  Controller,
-  Injectable,
-  Post,
-  HttpException,
-  Body,
-} from '@nestjs/common';
+import { Get, Req, UseGuards, Controller, Post, Body } from '@nestjs/common';
 import { PlantIdService } from './plantId.service';
 import { PlantIdDto } from './dto/plant-id.dto';
 import { Response } from './interface/plantResponse.interface';
-import { RequestWithUser } from '../auth/guards/requestWithUser.interface';
-import JwtAuthGuard from '../auth/guards/jwt-auth.guard';
+import { RequestWithUser } from '../common/interface/request-user';
+import JwtAuthGuard from '../authz/jwt-auth.guard';
+import { Logger } from '../logs/Logger';
 
 @Controller('identify')
 export class PlantIdController {
@@ -25,11 +16,14 @@ export class PlantIdController {
     @Req() request: RequestWithUser,
     @Body() plantIdDto: PlantIdDto,
   ): Promise<Response> {
+    Logger.info('/identify');
     const { base64 } = plantIdDto;
     const userId = request.user.id;
+
     const isSaved = await this.plantIdService.findOne({
       where: { userId: userId, base64: base64 },
     });
+
     if (!isSaved) {
       const response: Response = await this.plantIdService.identify(base64);
       await this.plantIdService.create({
@@ -40,7 +34,21 @@ export class PlantIdController {
 
       return response;
     }
-    const { response } = isSaved;
-    return response;
+    return isSaved;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getPlants(@Req() request: RequestWithUser) {
+    const userId = request.user.id;
+
+    const response = await this.plantIdService.findAll({
+      where: {
+        userId: request.user.id,
+      },
+    });
+    if (response) {
+      return { response: response };
+    }
   }
 }

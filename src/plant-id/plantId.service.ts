@@ -13,6 +13,7 @@ export class PlantIdService extends AbstractService {
   ) {
     super(plantRepository);
   }
+
   async identify(base64: string) {
     let files = [];
     files.push(base64);

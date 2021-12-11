@@ -1,4 +1,4 @@
 export class CreateModelDto {
-  id: string;
+  model: string;
   concept: string;
 }
