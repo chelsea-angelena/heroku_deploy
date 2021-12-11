@@ -4,7 +4,6 @@ import { PlantIdDto } from './dto/plant-id.dto';
 import { Response } from './interface/plantResponse.interface';
 import { RequestWithUser } from '../common/interface/request-user';
 import JwtAuthGuard from '../authz/jwt-auth.guard';
-import { Logger } from '../logs/Logger';
 
 @Controller('identify')
 export class PlantIdController {
@@ -16,7 +15,6 @@ export class PlantIdController {
     @Req() request: RequestWithUser,
     @Body() plantIdDto: PlantIdDto,
   ): Promise<Response> {
-    Logger.info('/identify');
     const { base64 } = plantIdDto;
     const userId = request.user.id;
 
