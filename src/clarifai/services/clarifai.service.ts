@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { clar } from '../clar.api';
-import { Logger } from '../../logs/Logger';
 
 @Injectable()
 export class ClarifaiService {
@@ -42,10 +41,7 @@ export class ClarifaiService {
 
       return response.data;
     } catch (err) {
-      Logger.error(
-        err.response.data.status.code,
-        err.response.data.status.description,
-      );
+      console.log(err.respose.data.status);
     }
   }
 
@@ -71,10 +67,7 @@ export class ClarifaiService {
 
       return response.data;
     } catch (err) {
-      Logger.error(
-        err.response.data.status.code,
-        err.response.data.status.description,
-      );
+      console.log(err.respose.data.status);
     }
   }
 
@@ -108,10 +101,7 @@ export class ClarifaiService {
       const { data } = await clar.patch('/v2/inputs', sendData);
       return data;
     } catch (err) {
-      Logger.error(
-        err.response.data.status.code,
-        err.response.data.status.description,
-      );
+      console.log(err.respose.data.status);
     }
   }
 
@@ -140,10 +130,7 @@ export class ClarifaiService {
       const res = await clar.post('/v2/models', raw);
       return res.data;
     } catch (err) {
-      Logger.error(
-        err.response.data.status.code,
-        err.response.data.status.description,
-      );
+      console.log(err.respose.data.status);
     }
   }
 
@@ -155,10 +142,7 @@ export class ClarifaiService {
 
       return data;
     } catch (err) {
-      Logger.error(
-        err.response.data.status.code,
-        err.response.data.status.description,
-      );
+      console.log(err.respose.data.status);
     }
   }
 
@@ -228,10 +212,7 @@ export class ClarifaiService {
         return response.data;
       }
     } catch (err) {
-      Logger.error(
-        err.response.data.status.code,
-        err.response.data.status.description,
-      );
+      console.log(err.respose.data.status);
     }
   }
 }

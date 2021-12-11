@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { urlencoded, json } from 'express';
-import { Logger } from './logs/Logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,6 +28,5 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, Document);
 
   await app.listen(port);
-  Logger.info(`Listening on port: ${await app.getUrl()}`);
 }
 bootstrap();
