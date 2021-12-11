@@ -7,10 +7,10 @@ dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      ssl: process.env.MODE === 'production',
+      ssl: process.env.MODE === 'heroku_deploy',
       extra: {
         ssl:
-          process.env.MODE === 'production'
+          process.env.MODE === 'heroku_deploy'
             ? { rejectUnauthorized: false }
             : null,
       },
