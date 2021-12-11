@@ -29,7 +29,7 @@ export class Model extends BaseEntity {
 
   @Expose()
   @ApiProperty()
-  @ManyToOne(() => User, (user) => user)
+  @ManyToOne(() => User, (user) => user.models)
   @JoinColumn()
   user: User;
 
