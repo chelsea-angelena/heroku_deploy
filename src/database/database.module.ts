@@ -7,13 +7,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      ssl: true,
-      //  process.env.MODE === 'heroku_deploy',
+      ssl: process.env.MODE === 'heroku_deploy',
+
       extra: {
-        ssl: { rejectUnauthorized: false },
-        // process.env.MODE === 'heroku_deploy'
-        //   ? { rejectUnauthorized: false }
-        //   : null,
+        ssl:
+          process.env.MODE === 'heroku_deploy'
+            ? { rejectUnauthorized: false }
+            : null,
       },
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
