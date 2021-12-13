@@ -3,7 +3,7 @@ import { DatabaseModule } from './database/database.module';
 import { PlantIdModule } from './plant-id/plantId.module';
 import { UsersModule } from './users/users.module';
 import { ClarifaiModule } from './clarifai/clarifai.module';
-import { AuthzModule } from './authz/authz.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -11,7 +11,7 @@ import { AuthzModule } from './authz/authz.module';
     UsersModule,
     PlantIdModule,
     ClarifaiModule,
-    AuthzModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// const dotenv = require('dotenv');
-// dotenv.config();
-
 @Module({
   imports: [
     TypeOrmModule.forRoot({

@@ -10,9 +10,10 @@ import {
 } from '@nestjs/common';
 import { PlantIdService } from './plantId.service';
 import { PlantDto, PlantIdDto } from './dto/plant-id.dto';
+import { PlantId } from './entities/plant-id.entity';
 import { Response } from './interface/plantResponse.interface';
 import { RequestWithUser } from '../common/interface/request-user';
-import JwtAuthGuard from '../authz/jwt-auth.guard';
+import JwtAuthGuard from '../auth/jwt-auth.guard';
 
 @Controller('plants')
 export class PlantIdController {
@@ -25,40 +26,40 @@ export class PlantIdController {
     @Body() plantIdDto: PlantIdDto,
   ): Promise<Response> {
     const { base64 } = plantIdDto;
-
     return await this.plantIdService.identify(base64);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async savePlantResponse(
     @Req() request: RequestWithUser,
     @Body() plantDto: PlantDto,
-  ): Promise<void> {
-    await this.plantIdService.create({
+  ): Promise<PlantId> {
+    return await this.plantIdService.create({
       base64: plantDto.base64,
       response: plantDto.response,
-      userId: request.user.userId,
+      user: request.user,
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deletePlant(
     @Req() request: RequestWithUser,
     @Param('id') id: string,
   ): Promise<void> {
-    await this.plantIdService.delete(id);
+    return await this.plantIdService.delete(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getPlants(@Req() request: RequestWithUser): Promise<Response[]> {
-    const plants = await this.plantIdService.findAll();
-    return plants;
+  async getPlants(@Req() request: RequestWithUser): Promise<PlantId[]> {
+    return await this.plantIdService.findAll();
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getPlantDetails(@Param('id') id: string): Promise<Response> {
+  async getPlantDetails(@Param('id') id: string): Promise<PlantId> {
     return await this.plantIdService.findOne(id);
   }
 }

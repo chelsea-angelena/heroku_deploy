@@ -12,7 +12,7 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { ClarifaiService } from './services/clarifai.service';
-import JwtAuthGuard from '../authz/jwt-auth.guard';
+import JwtAuthGuard from '../auth/jwt-auth.guard';
 import { RequestWithUser } from '../common/interface/request-user';
 import { ModelService } from './services/model.service';
 import { BaseResponse } from './ro/clarifai.ro';
@@ -28,7 +28,7 @@ export class ClarifaiController {
   ) {}
 
   @Get('/inputs')
-  async getInputs(@Req() req: RequestWithUser) {
+  async getInputs(@Req() req: RequestWithUser): Promise<unknown> {
     const { data } = await this.clarifaiService.getInputs();
     const { inputs } = data;
     return inputs;
@@ -39,7 +39,7 @@ export class ClarifaiController {
     @Req() req: RequestWithUser,
     @Param('id') id: string,
     @Param('appId') appId: string,
-  ) {
+  ): Promise<unknown> {
     return await this.clarifaiService.getModelInfo();
   }
 
@@ -51,12 +51,15 @@ export class ClarifaiController {
   }
 
   @Post('/inputs')
-  async addInputs(@Body() body, @Req() req: RequestWithUser) {
+  async addInputs(@Body() body, @Req() req: RequestWithUser): Promise<unknown> {
     return await this.clarifaiService.addInputs(body);
   }
 
   @Post('/onlyInput')
-  async onlyInputs(@Body() body, @Req() req: RequestWithUser) {
+  async onlyInputs(
+    @Body() body,
+    @Req() req: RequestWithUser,
+  ): Promise<unknown> {
     const { user } = req;
     return await this.clarifaiService.addInputs(body);
   }
@@ -80,7 +83,10 @@ export class ClarifaiController {
   }
 
   @Post('/model')
-  async createModel(@Body() body, @Req() req: RequestWithUser) {
+  async createModel(
+    @Body() body,
+    @Req() req: RequestWithUser,
+  ): Promise<unknown> {
     const response = await this.clarifaiService.createModel(body);
 
     const newModel = {
@@ -97,18 +103,18 @@ export class ClarifaiController {
   async updateModel(
     @Body('conceptId') conceptId: string,
     @Req() req: RequestWithUser,
-  ) {
+  ): Promise<unknown> {
     return await this.clarifaiService.updateModel(conceptId);
   }
 
   @Post('/model/train')
-  async trainModel(@Req() req: RequestWithUser) {
+  async trainModel(@Req() req: RequestWithUser): Promise<unknown> {
     this.clarifaiService.trainModel();
     return 'Model is training - wait 10 mins then refresh';
   }
 
   @Post('/predict')
-  async predictWithModel(@Body() body) {
+  async predictWithModel(@Body() body): Promise<unknown> {
     return await this.clarifaiService.predictWithModel(body);
   }
 }
