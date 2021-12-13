@@ -1,47 +1,64 @@
 import {
-  HttpCode,
+  Param,
+  Delete,
+  Get,
   Req,
   UseGuards,
-  Inject,
   Controller,
-  Injectable,
   Post,
-  HttpException,
   Body,
 } from '@nestjs/common';
 import { PlantIdService } from './plantId.service';
-import { PlantIdDto } from './dto/plant-id.dto';
+import { PlantDto, PlantIdDto } from './dto/plant-id.dto';
 import { Response } from './interface/plantResponse.interface';
-import { RequestWithUser } from '../auth/guards/requestWithUser.interface';
-import JwtAuthGuard from '../auth/guards/jwt-auth.guard';
+import { RequestWithUser } from '../common/interface/request-user';
+import JwtAuthGuard from '../authz/jwt-auth.guard';
 
-@Controller('identify')
+@Controller('plants')
 export class PlantIdController {
   constructor(private readonly plantIdService: PlantIdService) {}
 
   @UseGuards(JwtAuthGuard)
-  @HttpCode(200)
-  @Post()
+  @Post('/identify')
   async identify(
     @Req() request: RequestWithUser,
     @Body() plantIdDto: PlantIdDto,
   ): Promise<Response> {
     const { base64 } = plantIdDto;
-    const userId = request.user.id;
-    const isSaved = await this.plantIdService.findOne({
-      where: { userId: userId, base64: base64 },
-    });
-    if (!isSaved) {
-      const response: Response = await this.plantIdService.identify(base64);
-      await this.plantIdService.create({
-        base64,
-        response,
-        userId,
-      });
 
-      return response;
-    }
-    const { response } = isSaved;
-    return response;
+    return await this.plantIdService.identify(base64);
+  }
+
+  @Post()
+  async savePlantResponse(
+    @Req() request: RequestWithUser,
+    @Body() plantDto: PlantDto,
+  ): Promise<void> {
+    await this.plantIdService.create({
+      base64: plantDto.base64,
+      response: plantDto.response,
+      userId: request.user.userId,
+    });
+  }
+
+  @Delete(':id')
+  async deletePlant(
+    @Req() request: RequestWithUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.plantIdService.delete(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getPlants(@Req() request: RequestWithUser): Promise<Response[]> {
+    const plants = await this.plantIdService.findAll();
+    return plants;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getPlantDetails(@Param('id') id: string): Promise<Response> {
+    return await this.plantIdService.findOne(id);
   }
 }

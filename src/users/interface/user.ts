@@ -1,13 +1,3 @@
-export interface UserPayload {
-  iss: string;
-
+export interface TokenPayload {
   sub: string;
-
-  iat: number;
-
-  exp: number;
-
-  azp: string;
-
-  scope: string;
 }

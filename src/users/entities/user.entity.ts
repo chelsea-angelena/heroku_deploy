@@ -1,24 +1,32 @@
-import { Column, Entity } from 'typeorm';
-import { Exclude } from 'class-transformer';
+import { OneToMany, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
+import { Model } from '../../clarifai/entities/model.entity';
+import { Transform, Expose } from 'class-transformer';
 
 @Entity()
 export class User extends BaseEntity {
-  @Column({ nullable: true })
-  iss: string;
-
+  @Expose()
   @Column({ nullable: true })
   sub: string;
 
+  @Expose()
   @Column({ nullable: true })
-  iat: number;
+  @Transform((value) => {
+    if (value !== null) {
+      return value;
+    }
+  })
+  appId: string;
 
+  @Expose()
   @Column({ nullable: true })
-  exp: number;
+  @Transform((value) => {
+    if (value !== null) {
+      return value;
+    }
+  })
+  userId: string;
 
-  @Column({ nullable: true })
-  azp: string;
-
-  @Column({ nullable: true })
-  scope: string;
+  @OneToMany(() => Model, (models) => models.user)
+  models: Model[];
 }
