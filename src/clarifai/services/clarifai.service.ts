@@ -14,7 +14,7 @@ export class ClarifaiService {
   }
 
   public async addInputs(body) {
-    const data = {
+    const inputData = JSON.stringify({
       user_app_id: {
         user_id: this.userId,
         app_id: this.appId,
@@ -23,7 +23,7 @@ export class ClarifaiService {
         {
           data: {
             image: {
-              base64: `${encodeURI(body?.base64)}`,
+              base64: `${encodeURI(body.base64)}`,
             },
             concepts: [
               {
@@ -34,19 +34,17 @@ export class ClarifaiService {
           },
         },
       ],
-    };
+    });
 
     try {
-      const response = await clar.post('/v2/inputs', data);
-
-      return response.data;
+      const { data } = await clar.post('/v2/inputs', inputData);
     } catch (err) {
-      console.log(err.respose.data.status);
+      console.log(err.response.data.status.details);
     }
   }
 
   public async addOnlyInputs(body) {
-    const data = JSON.stringify({
+    const inputData = JSON.stringify({
       user_app_id: {
         user_id: this.userId,
         app_id: this.appId,
@@ -63,9 +61,9 @@ export class ClarifaiService {
     });
 
     try {
-      const response = await clar.post('/v2/inputs', data);
+      const { data } = await clar.post('/v2/inputs', inputData);
 
-      return response.data;
+      return data;
     } catch (err) {
       console.log(err.respose.data.status);
     }
@@ -101,60 +99,19 @@ export class ClarifaiService {
       const { data } = await clar.patch('/v2/inputs', sendData);
       return data;
     } catch (err) {
-      console.log(err.respose.data.status);
-    }
-  }
-
-  async createModel(body) {
-    const raw = JSON.stringify({
-      user_app_id: {
-        user_id: this.userId,
-        app_id: this.appId,
-      },
-      model: {
-        id: body.model,
-        output_info: {
-          data: {
-            concepts: [
-              {
-                id: body.concept,
-                value: 1,
-              },
-            ],
-          },
-        },
-      },
-    });
-
-    try {
-      const res = await clar.post('/v2/models', raw);
-      return res.data;
-    } catch (err) {
-      console.log(err.respose.data.status);
-    }
-  }
-
-  public async getModelInfo() {
-    try {
-      const { data } = await clar.get(
-        `/v2/users/me/apps/${this.appId}/models/${this.modelId}`,
-      );
-
-      return data;
-    } catch (err) {
-      console.log(err.respose.data.status);
+      console.log(err.response.data.status.details);
     }
   }
 
   public async updateModel(conceptId: string) {
-    const ModelPatchData = {
+    const modelData = JSON.stringify({
       user_app_id: {
         user_id: this.userId,
         app_id: this.appId,
       },
       models: [
         {
-          id: 'custom_model',
+          id: this.modelId,
           output_info: {
             data: {
               concepts: [
@@ -167,13 +124,13 @@ export class ClarifaiService {
         },
       ],
       action: 'merge',
-    };
+    });
 
     try {
-      const response = await clar.patch('/v2/models', ModelPatchData);
-      return response?.data;
+      const { data } = await clar.patch('/v2/models', modelData);
+      return data;
     } catch (err) {
-      return err;
+      console.log(err.response.data.status.details);
     }
   }
 
@@ -211,8 +168,21 @@ export class ClarifaiService {
       if (response.data.status?.code === 10000) {
         return response.data;
       }
+      return response.data;
     } catch (err) {
-      console.log(err.respose.data.status);
+      console.log(err.response.data.status.details);
+    }
+  }
+
+  public async getModelInfo() {
+    try {
+      const { data } = await clar.get(
+        `/v2/users/me/apps/${this.appId}/models/${this.modelId}`,
+      );
+      console.log(data, 'MODEL DATA');
+      return data;
+    } catch (err) {
+      console.log(err.response.data.status.details);
     }
   }
 }

@@ -60,6 +60,6 @@ export class PlantIdController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getPlantDetails(@Param('id') id: string): Promise<PlantId> {
-    return await this.plantIdService.findOne(id);
+    return await this.plantIdService.findOne({ id });
   }
 }
