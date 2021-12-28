@@ -34,16 +34,13 @@ export class ClarController {
     @Req() req: RequestWithUser,
     @Body() body,
   ): Promise<any> {
-    console.log('UPDATE INPUT');
     return await this.clarifaiService.updateInputs(body, id);
   }
 
   @Get('/inputs')
   async getInputs(): Promise<InputResponse> {
     console.log('GET INPUT');
-    const { data } = await this.clarifaiService.getInputs();
-    const { inputs } = data;
-    return inputs;
+    return await this.clarifaiService.getInputs();
   }
 
   @Delete('/inputs/:id')
@@ -67,7 +64,7 @@ export class ClarController {
 
   @Post('/predict')
   async predictWithModel(@Body() body): Promise<unknown> {
-    console.log('PREDICT WITH MODEL');
+    console.log('PREDICT WITH MODEL', body);
     return await this.clarifaiService.predictWithModel(body);
   }
 
@@ -83,6 +80,7 @@ export class ClarController {
   @Get('/model')
   async getModel(@Req() req: RequestWithUser): Promise<unknown> {
     console.log('GET MODEL');
+
     return await this.clarifaiService.getModelInfo();
   }
 }
