@@ -36,7 +36,7 @@ export class PlantNetController {
     }),
   )
   async uploadImage(@UploadedFile() file, @Req() request: RequestWithUser) {
-    const baseUrl = 'http://localhost:5002/api';
+    const baseUrl = 'https://clar-server.herokuapp.com/api';
     const createPlantNetUploadDto: CreatePlantNetUploadDto = {
       filename: file.filename,
       url: `${baseUrl}/${file.path}`,
