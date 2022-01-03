@@ -1,31 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { clar } from '../clar.api';
-
+import { ModelService } from './model.service';
 @Injectable()
 export class ClarifaiService {
-  modelId = process.env.MODEL_ID;
-  userId = process.env.USER_ID;
-  appId = process.env.APP_ID;
-  constructor() {}
+  constructor(private readonly modelService: ModelService) {}
 
-  public async getInputs(): Promise<any> {
-    const res = await clar.get('/v2/inputs');
-    if (res) {
-      return res?.data?.inputs.map((item) => item);
+  async getInputs(user): Promise<any> {
+    try {
+      const { data } = await clar.get(
+        `v2/users/me/apps/${user.appId}/inputs?page=1&per_page=10`,
+      );
+      console.log(data, 'data');
+      return data;
+    } catch (err) {
+      console.log(err);
     }
   }
 
-  public async addInputs(body) {
-    const inputData = JSON.stringify({
+  public async addInputs(body, user) {
+    const data = {
       user_app_id: {
-        user_id: this.userId,
-        app_id: this.appId,
+        user_id: user.userId,
+        app_id: user.appId,
       },
       inputs: [
         {
           data: {
             image: {
-              base64: `${encodeURI(body.base64)}`,
+              base64: `${encodeURI(body?.base64)}`,
             },
             concepts: [
               {
@@ -36,21 +38,22 @@ export class ClarifaiService {
           },
         },
       ],
-    });
+    };
 
     try {
-      const { data } = await clar.post('/v2/inputs', inputData);
-      return data;
+      const response = await clar.post('/v2/inputs', data);
+
+      return response.data;
     } catch (err) {
-      console.log(err.response.data.status.details);
+      console.log(err.respose.data.status);
     }
   }
 
-  public async addOnlyInputs(body) {
-    const inputData = JSON.stringify({
+  public async addOnlyInputs(body, user) {
+    const data = JSON.stringify({
       user_app_id: {
-        user_id: this.userId,
-        app_id: this.appId,
+        user_id: user.userId,
+        app_id: user.appId,
       },
       inputs: [
         {
@@ -64,9 +67,7 @@ export class ClarifaiService {
     });
 
     try {
-      const { data } = await clar.post('/v2/inputs', inputData);
-
-      return data;
+      const response = await clar.post('/v2/inputs', data);
     } catch (err) {
       console.log(err.respose.data.status);
     }
@@ -77,11 +78,11 @@ export class ClarifaiService {
     return data;
   }
 
-  public async updateInputs(body, id) {
+  public async updateInputs(body, id, user) {
     const sendData = JSON.stringify({
       user_app_id: {
-        user_id: this.userId,
-        app_id: this.appId,
+        user_id: user.userId,
+        app_id: user.appId,
       },
       inputs: [
         {
@@ -102,19 +103,77 @@ export class ClarifaiService {
       const { data } = await clar.patch('/v2/inputs', sendData);
       return data;
     } catch (err) {
-      console.log(err.response.data.status.details);
+      console.log(err.respose.data.status);
     }
   }
 
-  public async updateModel(conceptId: string) {
-    const modelData = JSON.stringify({
+  async createModel(body, user) {
+    const raw = JSON.stringify({
       user_app_id: {
-        user_id: this.userId,
-        app_id: this.appId,
+        user_id: user.userId,
+        app_id: user.appId,
+      },
+      model: {
+        id: body.model,
+        output_info: {
+          data: {
+            concepts: [
+              {
+                id: body.concept,
+                value: 1,
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    try {
+      const res = await clar.post('/v2/models', raw);
+      return res.data;
+    } catch (err) {
+      console.log(err.respose.data.status);
+    }
+  }
+
+  public async getModelInfo(user) {
+    console.log(user, 'USER');
+
+    const model = await this.modelService.findOne({
+      where: { user: user },
+    });
+
+    if (model) {
+      const { data } = await clar.get(
+        `/v2/users/me/apps/${user.appId}/models/${model.modelId}`,
+      );
+      console.log(data);
+      return data;
+    }
+
+    if (!model) {
+      const newModel = await this.modelService.create({
+        user,
+      });
+      console.log(newModel, 'NEW MODEL');
+      const { data } =
+        newModel &&
+        (await clar.get(
+          `/v2/users/me/apps/${user.appId}/models/${newModel.modelId}`,
+        ));
+      return data;
+    }
+  }
+
+  public async updateModel(conceptId: string, user) {
+    const ModelPatchData = {
+      user_app_id: {
+        user_id: user.userId,
+        app_id: user.appId,
       },
       models: [
         {
-          id: this.modelId,
+          id: 'custom_model',
           output_info: {
             data: {
               concepts: [
@@ -127,61 +186,72 @@ export class ClarifaiService {
         },
       ],
       action: 'merge',
-    });
+    };
 
     try {
-      const { data } = await clar.patch('/v2/models', modelData);
-      return data;
+      const response = await clar.patch('/v2/models', ModelPatchData);
+      return response?.data;
     } catch (err) {
-      console.log(err.response.data.status.details);
+      return err;
     }
   }
 
-  public trainModel() {
-    clar.post(
-      `/v2/users/me/apps/${this.appId}/models/${this.modelId}/versions`,
-    );
+  async trainModel(user) {
+    try {
+      const model = await this.modelService.findOne({
+        where: { user },
+      });
+      console.log(model);
+
+      const { data } = await clar.post(
+        `/v2/users/me/apps/${user.appId}/models/${model.modelId}/versions`,
+      );
+      console.log(data, 'DATA');
+      const updated =
+        data &&
+        (await this.modelService.update(model.id, {
+          versionId: data?.model.model_version.id,
+        }));
+      console.log(updated, 'UPDATED');
+      const modelUpdate = await this.modelService.findOne({
+        where: { user },
+      });
+      return modelUpdate;
+    } catch (err) {
+      console.log(err.response);
+    }
   }
 
-  public async predictWithModel(body) {
+  public async predictWithModel(base64, user) {
+    const model = await this.modelService.findOne({ where: { user: user } });
     const data = JSON.stringify({
       user_app_id: {
-        user_id: this.userId,
-        app_id: this.appId,
+        user_id: user.userId,
+        app_id: user.appId,
       },
       inputs: [
         {
           data: {
             image: {
-              base64: `${encodeURI(body?.base64)}`,
+              base64: `${encodeURI(base64)}`,
             },
           },
         },
       ],
     });
     try {
-      const modelVersionId = await this.getModelInfo();
-      const versionId = modelVersionId && modelVersionId.model.model_version.id;
       const response = await clar.post(
-        `v2/models/${this.modelId}/versions/${versionId}/outputs`,
+        `v2/models/${model.modelId}/versions/${model.versionId}/outputs`,
 
         data,
       );
+      if (response.data.status?.code === 21102) {
+        return response.data.status.details;
+      }
 
       return response.data;
     } catch (err) {
-      console.log(err.response.data.status.details);
-    }
-  }
-
-  public async getModelInfo() {
-    try {
-      const { data } = await clar.get(
-        `/v2/users/me/apps/${this.appId}/models/${this.modelId}`,
-      );
-      return data;
-    } catch (err) {
-      console.log(err.response.data.status.details);
+      console.log(err.respose.data.status);
     }
   }
 }

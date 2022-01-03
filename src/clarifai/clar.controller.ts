@@ -14,18 +14,43 @@ import {
 import { ClarifaiService } from './services/clarifai.service';
 import JwtAuthGuard from '../auth/jwt-auth.guard';
 import { RequestWithUser } from '../common/interface/request-user';
-import { BaseResponse } from './ro/clarifai.ro';
+import { ModelService } from './services/model.service';
 
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('clarifai')
 export class ClarController {
-  constructor(private readonly clarifaiService: ClarifaiService) {}
+  constructor(
+    private readonly clarifaiService: ClarifaiService,
+    private readonly modelService: ModelService,
+  ) {}
+
+  @Get('/inputs')
+  async getInputs(@Req() req: RequestWithUser) {
+    console.log('HELLO');
+    return await this.clarifaiService.getInputs(req.user);
+  }
+
+  @Get('/model')
+  async getModel(@Req() req: RequestWithUser) {
+    return await this.clarifaiService.getModelInfo(req.user);
+  }
+
+  // @Get('/model')
+  // async getModelById(@Req() req: RequestWithUser): Promise<Model[]> {
+  //   return await this.modelService.findAll({
+  //     where: { userId: req.user.id },
+  //   });
+  // }
 
   @Post('/inputs')
-  async addInputs(@Body() body): Promise<unknown> {
-    console.log('POST INPUT');
-    return await this.clarifaiService.addInputs(body);
+  async addInputs(@Body() body, @Req() req: RequestWithUser) {
+    return await this.clarifaiService.addInputs(body, req.user);
+  }
+
+  @Post('/onlyInput')
+  async onlyInputs(@Body() body, @Req() req: RequestWithUser) {
+    return await this.clarifaiService.addInputs(body, req.user);
   }
 
   @Patch('/inputs/:id')
@@ -34,53 +59,46 @@ export class ClarController {
     @Req() req: RequestWithUser,
     @Body() body,
   ): Promise<any> {
-    return await this.clarifaiService.updateInputs(body, id);
-  }
-
-  @Get('/inputs')
-  async getInputs(): Promise<InputResponse> {
-    console.log('GET INPUT');
-    return await this.clarifaiService.getInputs();
+    console.log(body, id, 'HYEEE');
+    return await this.clarifaiService.updateInputs(body, id, req.user);
   }
 
   @Delete('/inputs/:id')
-  async deleteInput(
-    @Param('id') id: string,
-    @Req() req: RequestWithUser,
-  ): Promise<BaseResponse> {
-    console.log('DELETE INPUT');
-    const response = await this.clarifaiService.deleteInput(id);
-    return response;
+  async deleteInput(@Param('id') id: string) {
+    return await this.clarifaiService.deleteInput(id);
   }
 
-  /* Model endpoints */
+  @Post('/model')
+  async createModel(@Body() body, @Req() req: RequestWithUser) {
+    const response = await this.clarifaiService.createModel(body, req.user);
 
-  @Post('/model/train')
-  async trainModel(@Req() req: RequestWithUser): Promise<unknown> {
-    console.log('TRAIN MODEL');
-    this.clarifaiService.trainModel();
-    return 'Model is training - wait 10 mins then refresh';
-  }
-
-  @Post('/predict')
-  async predictWithModel(@Body() body): Promise<unknown> {
-    console.log('PREDICT WITH MODEL', body);
-    return await this.clarifaiService.predictWithModel(body);
+    const newModel = {
+      userId: req.user.id,
+      modelId: response.data.model.id,
+      name: response.data.model.name,
+      appId: response.data.model.app_id,
+      modelType: response.data.model.model_type_id,
+    };
+    return await this.modelService.create(newModel);
   }
 
   @Patch('/model')
-  async addConcept(
+  async updateModel(
     @Body('conceptId') conceptId: string,
     @Req() req: RequestWithUser,
-  ): Promise<unknown> {
-    console.log('UPDATE MODEL');
-    return await this.clarifaiService.updateModel(conceptId);
+  ) {
+    return await this.clarifaiService.updateModel(conceptId, req.user);
   }
 
-  @Get('/model')
-  async getModel(@Req() req: RequestWithUser): Promise<unknown> {
-    console.log('GET MODEL');
+  @Post('/model/train')
+  async trainModel(@Req() req: RequestWithUser) {
+    console.log(req.user);
+    return await this.clarifaiService.trainModel(req.user);
+  }
 
-    return await this.clarifaiService.getModelInfo();
+  @Post('/predict')
+  async predictWithModel(@Body() body, @Req() req: RequestWithUser) {
+    const { base64 } = body;
+    return await this.clarifaiService.predictWithModel(base64, req.user);
   }
 }

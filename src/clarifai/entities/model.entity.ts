@@ -1,42 +1,35 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { IsString } from 'class-validator';
+import { Entity, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
+import { ApiProperty } from '@nestjs/swagger';
 import { Concept } from './concept.entity';
 import { Expose } from 'class-transformer';
 
 @Entity('model')
 export class Model extends BaseEntity {
-  @Column()
   @Expose()
-  @IsString()
+  @Column({ default: 'clar_server_model_2' })
   modelId: string;
 
-  @Column()
   @Expose()
-  @IsString()
+  @Column({ default: 'clar_server_model_2' })
   name: string;
 
-  @Column()
   @Expose()
-  @IsString()
-  modifiedAt: string;
-
-  @Column()
-  @Expose()
-  @IsString()
+  @Column({ nullable: true })
   modelType: string;
 
-  @Column()
-  appId: string;
+  @Expose()
+  @Column({ nullable: true })
+  versionId: string;
 
-  @Column()
-  clarifaiUserId: string;
-
-  @ManyToOne(() => User, (user) => user.models)
+  @Expose()
+  @ApiProperty()
+  @OneToOne(() => User, (user) => user.model, { eager: true })
   @JoinColumn()
   user: User;
 
+  @Expose()
   @OneToMany(() => Concept, (concepts) => concepts.model, { nullable: true })
   concepts: Concept[];
 }
