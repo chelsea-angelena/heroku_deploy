@@ -20,7 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database: process.env.POSTGRES_DATABASE,
       entities: ['**/*.entity.{js, ts}'],
       autoLoadEntities: true,
-      synchronize: process.env.MODE === 'development',
+      synchronize: true,
     }),
   ],
 })
