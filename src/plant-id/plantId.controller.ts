@@ -53,7 +53,7 @@ export class PlantIdController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getPlants(@Req() request: RequestWithUser): Promise<PlantId[]> {
+  async getPlants(): Promise<PlantId[]> {
     return await this.plantIdService.findAll();
   }
 
