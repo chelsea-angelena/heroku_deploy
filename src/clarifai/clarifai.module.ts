@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ClarifaiController } from './clarifai.controller';
+import { ClarController } from './clar.controller';
 import { ClarifaiService } from './services/clarifai.service';
 import { Model } from './entities/model.entity';
 import { Concept } from './entities/concept.entity';
@@ -10,7 +10,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Model, Concept]), UsersModule],
-  controllers: [ClarifaiController],
+  controllers: [ClarController],
   providers: [ClarifaiService, ModelService, ConceptService],
 })
 export class ClarifaiModule {}

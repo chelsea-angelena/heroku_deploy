@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// const dotenv = require('dotenv');
-// dotenv.config();
-
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -21,6 +18,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
+      entities: ['**/*.entity.{js, ts}'],
       autoLoadEntities: true,
       synchronize: true,
     }),

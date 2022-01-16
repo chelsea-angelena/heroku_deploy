@@ -12,16 +12,14 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { ClarifaiService } from './services/clarifai.service';
-import JwtAuthGuard from '../authz/jwt-auth.guard';
+import JwtAuthGuard from '../auth/jwt-auth.guard';
 import { RequestWithUser } from '../common/interface/request-user';
 import { ModelService } from './services/model.service';
-import { BaseResponse } from './ro/clarifai.ro';
-import { Model } from './entities/model.entity';
 
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('clarifai')
-export class ClarifaiController {
+export class ClarController {
   constructor(
     private readonly clarifaiService: ClarifaiService,
     private readonly modelService: ModelService,
@@ -29,36 +27,30 @@ export class ClarifaiController {
 
   @Get('/inputs')
   async getInputs(@Req() req: RequestWithUser) {
-    const { data } = await this.clarifaiService.getInputs();
-    const { inputs } = data;
-    return inputs;
-  }
-
-  @Get('/model/:appId/:id')
-  async getModel(
-    @Req() req: RequestWithUser,
-    @Param('id') id: string,
-    @Param('appId') appId: string,
-  ) {
-    return await this.clarifaiService.getModelInfo();
+    console.log('HELLO');
+    return await this.clarifaiService.getInputs(req.user);
   }
 
   @Get('/model')
-  async getModelById(@Req() req: RequestWithUser): Promise<Model[]> {
-    return await this.modelService.findAll({
-      where: { userId: req.user.id },
-    });
+  async getModel(@Req() req: RequestWithUser) {
+    return await this.clarifaiService.getModelInfo(req.user);
   }
+
+  // @Get('/model')
+  // async getModelById(@Req() req: RequestWithUser): Promise<Model[]> {
+  //   return await this.modelService.findAll({
+  //     where: { userId: req.user.id },
+  //   });
+  // }
 
   @Post('/inputs')
   async addInputs(@Body() body, @Req() req: RequestWithUser) {
-    return await this.clarifaiService.addInputs(body);
+    return await this.clarifaiService.addInputs(body, req.user);
   }
 
   @Post('/onlyInput')
   async onlyInputs(@Body() body, @Req() req: RequestWithUser) {
-    const { user } = req;
-    return await this.clarifaiService.addInputs(body);
+    return await this.clarifaiService.addInputs(body, req.user);
   }
 
   @Patch('/inputs/:id')
@@ -67,21 +59,18 @@ export class ClarifaiController {
     @Req() req: RequestWithUser,
     @Body() body,
   ): Promise<any> {
-    return await this.clarifaiService.updateInputs(body, id);
+    console.log(body, id, 'HYEEE');
+    return await this.clarifaiService.updateInputs(body, id, req.user);
   }
 
   @Delete('/inputs/:id')
-  async deleteInput(
-    @Param('id') id: string,
-    @Req() req: RequestWithUser,
-  ): Promise<BaseResponse> {
-    const response = await this.clarifaiService.deleteInput(id);
-    return response;
+  async deleteInput(@Param('id') id: string) {
+    return await this.clarifaiService.deleteInput(id);
   }
 
   @Post('/model')
   async createModel(@Body() body, @Req() req: RequestWithUser) {
-    const response = await this.clarifaiService.createModel(body);
+    const response = await this.clarifaiService.createModel(body, req.user);
 
     const newModel = {
       userId: req.user.id,
@@ -98,17 +87,18 @@ export class ClarifaiController {
     @Body('conceptId') conceptId: string,
     @Req() req: RequestWithUser,
   ) {
-    return await this.clarifaiService.updateModel(conceptId);
+    return await this.clarifaiService.updateModel(conceptId, req.user);
   }
 
   @Post('/model/train')
   async trainModel(@Req() req: RequestWithUser) {
-    this.clarifaiService.trainModel();
-    return 'Model is training - wait 10 mins then refresh';
+    console.log(req.user);
+    return await this.clarifaiService.trainModel(req.user);
   }
 
   @Post('/predict')
-  async predictWithModel(@Body() body) {
-    return await this.clarifaiService.predictWithModel(body);
+  async predictWithModel(@Body() body, @Req() req: RequestWithUser) {
+    const { base64 } = body;
+    return await this.clarifaiService.predictWithModel(base64, req.user);
   }
 }

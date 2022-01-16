@@ -8,4 +8,4 @@ import { UsersModule } from '../users/users.module';
   providers: [JwtStrategy],
   exports: [PassportModule],
 })
-export class AuthzModule {}
+export class AuthModule {}

@@ -15,7 +15,7 @@ export class PlantIdService extends AbstractService {
   }
 
   async identify(base64: string) {
-    let files = [];
+    const files = [];
     files.push(base64);
 
     const sendData = {

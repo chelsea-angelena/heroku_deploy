@@ -1,32 +1,38 @@
-import { OneToMany, Column, Entity } from 'typeorm';
+import { OneToOne, OneToMany, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Model } from '../../clarifai/entities/model.entity';
-import { Transform, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
+import { PlantId } from '../../plant-id/entities/plant-id.entity';
+import { PlantNet } from '../../plantnet/entities/plantnet.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class User extends BaseEntity {
   @Expose()
+  @ApiProperty()
   @Column({ nullable: true })
   sub: string;
 
   @Expose()
-  @Column({ nullable: true })
-  @Transform((value) => {
-    if (value !== null) {
-      return value;
-    }
-  })
+  @ApiProperty()
+  @Column({ nullable: true, default: 'Image_Recognition_App' })
   appId: string;
 
   @Expose()
-  @Column({ nullable: true })
-  @Transform((value) => {
-    if (value !== null) {
-      return value;
-    }
-  })
+  @ApiProperty()
+  @Column({ nullable: true, default: 'dbz5i3r2v8jt' })
   userId: string;
 
-  @OneToMany(() => Model, (models) => models.user)
-  models: Model[];
+  @Expose()
+  @ApiProperty()
+  @OneToOne(() => Model, (model) => model.user, { nullable: true })
+  model: Model;
+
+  @ApiProperty()
+  @OneToMany(() => PlantId, (plants) => plants.user)
+  plants: PlantId[];
+
+  @ApiProperty()
+  @OneToMany(() => PlantNet, (plantNet) => plantNet)
+  plantNet: PlantNet[];
 }
