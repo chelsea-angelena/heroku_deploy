@@ -1,0 +1,56 @@
+Project plant_id {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Plant Id Database
+    **markdown content here**
+  '''
+}
+
+Table "user" {
+  "id" uuid [pk, not null, default: `uuid_generate_v4()`]
+  "createdDate" VARCHAR [not null, default: "2022-01-16 13:39:36.977014-08"]
+  "updatedDate" VARCHAR [default: "2022-01-16 13:39:36.977014-08"]
+  "sub" varchar
+  "appId" varchar [default: "Image_Recognition_App"]
+  "userId" varchar [default: "dbz5i3r2v8jt"]
+}
+
+Table "model" {
+  "id" uuid [pk, not null, default: `uuid_generate_v4()`]
+  "createdDate" VARCHAR [not null, default: "2022-01-16 13:39:36.977014-08"]
+  "updatedDate" VARCHAR [default: "2022-01-16 13:39:36.977014-08"]
+  "modelId" varchar [not null, default: "clar_server_model_2"]
+  "name" varchar [not null, default: "clar_server_model_2"]
+  "modelType" varchar
+  "versionId" varchar
+  "userId" uuid [unique]
+}
+
+Table "plant_id" {
+  "id" uuid [pk, not null, default: `uuid_generate_v4()`]
+  "createdDate" VARCHAR [not null, default: "2022-01-16 13:39:36.977014-08"]
+  "updatedDate" VARCHAR [default: "2022-01-16 13:39:36.977014-08"]
+  "response" json
+  "filename" varchar [not null]
+  "url" varchar [not null]
+  "path" varchar [not null]
+  "userIdId" uuid
+  "base64" varchar [not null]
+  "userId" uuid
+}
+
+Table "concept" {
+  "id" uuid [pk, not null, default: `uuid_generate_v4()`]
+  "createdDate" VARCHAR [not null, default: "2022-01-16 13:39:36.977014-08"]
+  "updatedDate" VARCHAR [default: "2022-01-16 13:39:36.977014-08"]
+  "concept" varchar [not null]
+  "modelId" uuid
+}
+
+Ref:"user"."id" < "model"."userId"
+
+Ref:"user"."id" < "plant_id"."userIdId"
+
+Ref:"user"."id" < "plant_id"."userId"
+
+Ref:"model"."id" < "concept"."modelId"

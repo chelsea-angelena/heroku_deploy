@@ -101,4 +101,10 @@ export class ClarController {
     const { base64 } = body;
     return await this.clarifaiService.predictWithModel(base64, req.user);
   }
+
+  @Delete('/inputs/:inputId/concepts/:conceptId')
+  async deleteConcept(@Param() params, @Req() req: RequestWithUser) {
+    const { inputId, conceptId } = params;
+    await this.clarifaiService.deleteConcept(inputId, conceptId, req.user);
+  }
 }

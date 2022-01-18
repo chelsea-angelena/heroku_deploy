@@ -254,4 +254,31 @@ export class ClarifaiService {
       console.log(err.respose.data.status);
     }
   }
+  async deleteConcept(inputId, conceptId, user) {
+    const data = JSON.stringify({
+      user_app_id: {
+        user_id: user.userId,
+        app_id: user.appId,
+      },
+      inputs: [
+        {
+          id: inputId,
+          data: {
+            concepts: [{ id: conceptId }],
+          },
+        },
+      ],
+      action: 'remove',
+    });
+
+    const response = await clar.patch(`v2/inputs`, data);
+    if (response.data.status?.code === 21102) {
+      return response.data.status.details;
+    }
+
+    return response.data;
+  }
+  catch(err) {
+    console.log(err.respose.data.status);
+  }
 }
