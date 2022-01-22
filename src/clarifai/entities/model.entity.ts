@@ -8,15 +8,23 @@ import { Expose } from 'class-transformer';
 @Entity('model')
 export class Model extends BaseEntity {
   @Expose()
-  @Column({ default: 'clar_server_model_2' })
+  @Column({ default: 'plant_id_model' })
   modelId: string;
 
   @Expose()
-  @Column({ default: 'clar_server_model_2' })
+  @Column({ default: 'plant_id_model' })
   name: string;
 
   @Expose()
-  @Column({ nullable: true })
+  @Column({ default: 'dbz5i3r2v8jt' })
+  clarifaiUserId: string;
+
+  @Expose()
+  @Column({ default: 'plant_id' })
+  appId: string;
+
+  @Expose()
+  @Column({ default: 'embedding-classifer' })
   modelType: string;
 
   @Expose()
@@ -24,8 +32,12 @@ export class Model extends BaseEntity {
   versionId: string;
 
   @Expose()
+  @Column({ nullable: true })
+  status: string;
+
+  @Expose()
   @ApiProperty()
-  @OneToOne(() => User, (user) => user.model, { eager: true })
+  @OneToOne(() => User, (user) => user.model)
   @JoinColumn()
   user: User;
 

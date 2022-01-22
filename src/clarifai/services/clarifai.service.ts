@@ -6,9 +6,10 @@ export class ClarifaiService {
   constructor(private readonly modelService: ModelService) {}
 
   async getInputs(user): Promise<any> {
+    console.log(process.env.APP_ID);
     try {
       const { data } = await clar.get(
-        `v2/users/me/apps/${user.appId}/inputs?page=1&per_page=10`,
+        `https://api.clarifai.com/v2/users/me/apps/${process.env.APP_ID}/inputs?page=1&per_page=10`,
       );
       console.log(data, 'data');
       return data;
@@ -20,8 +21,8 @@ export class ClarifaiService {
   public async addInputs(body, user) {
     const data = {
       user_app_id: {
-        user_id: user.userId,
-        app_id: user.appId,
+        user_id: process.env.CLAR_USER_ID,
+        app_id: process.env.APP_ID,
       },
       inputs: [
         {
@@ -45,15 +46,15 @@ export class ClarifaiService {
 
       return response.data;
     } catch (err) {
-      console.log(err.respose.data.status);
+      console.log(err.response.data.status);
     }
   }
 
   public async addOnlyInputs(body, user) {
     const data = JSON.stringify({
       user_app_id: {
-        user_id: user.userId,
-        app_id: user.appId,
+        user_id: process.env.CLAR_USER_ID,
+        app_id: process.env.APP_ID,
       },
       inputs: [
         {
@@ -81,8 +82,8 @@ export class ClarifaiService {
   public async updateInputs(body, id, user) {
     const sendData = JSON.stringify({
       user_app_id: {
-        user_id: user.userId,
-        app_id: user.appId,
+        user_id: process.env.CLAR_USER_ID,
+        app_id: process.env.APP_ID,
       },
       inputs: [
         {
@@ -110,8 +111,8 @@ export class ClarifaiService {
   async createModel(body, user) {
     const raw = JSON.stringify({
       user_app_id: {
-        user_id: user.userId,
-        app_id: user.appId,
+        user_id: process.env.CLAR_USER_ID,
+        app_id: process.env.APP_ID,
       },
       model: {
         id: body.model,
@@ -137,43 +138,38 @@ export class ClarifaiService {
   }
 
   public async getModelInfo(user) {
-    console.log(user, 'USER');
-
     const model = await this.modelService.findOne({
-      where: { user: user },
+      where: { user },
     });
-
-    if (model) {
-      const { data } = await clar.get(
-        `/v2/users/me/apps/${user.appId}/models/${model.modelId}`,
-      );
-      console.log(data);
-      return data;
-    }
-
     if (!model) {
-      const newModel = await this.modelService.create({
-        user,
-      });
-      console.log(newModel, 'NEW MODEL');
-      const { data } =
-        newModel &&
-        (await clar.get(
-          `/v2/users/me/apps/${user.appId}/models/${newModel.modelId}`,
-        ));
-      return data;
+      const model = await this.modelService.create({ user });
+      return await this.updateModelDB(model);
     }
+    return await this.updateModelDB(model);
+  }
+
+  public async updateModelDB(model) {
+    const { data } = await clar.get(
+      `/v2/users/me/apps/${process.env.APP_ID}/models/${process.env.MODEL_ID}`,
+    );
+
+    await this.modelService.update(model.id, {
+      ...model,
+      status: data.model.model_version.status,
+      versionId: data.model.model_version.id,
+    });
+    return data;
   }
 
   public async updateModel(conceptId: string, user) {
     const ModelPatchData = {
       user_app_id: {
-        user_id: user.userId,
-        app_id: user.appId,
+        user_id: process.env.CLAR_USER_ID,
+        app_id: process.env.APP_ID,
       },
       models: [
         {
-          id: 'custom_model',
+          id: process.env.MODEL_ID,
           output_info: {
             data: {
               concepts: [
@@ -201,33 +197,24 @@ export class ClarifaiService {
       const model = await this.modelService.findOne({
         where: { user },
       });
-      console.log(model);
 
-      const { data } = await clar.post(
-        `/v2/users/me/apps/${user.appId}/models/${model.modelId}/versions`,
+      const trained = await clar.post(
+        `/v2/users/me/apps/${process.env.APP_ID}/models/${process.env.MODEL_ID}/versions`,
       );
-      console.log(data, 'DATA');
-      const updated =
-        data &&
-        (await this.modelService.update(model.id, {
-          versionId: data?.model.model_version.id,
-        }));
-      console.log(updated, 'UPDATED');
-      const modelUpdate = await this.modelService.findOne({
-        where: { user },
-      });
-      return modelUpdate;
+      if (trained) {
+        return await this.updateModelDB(model);
+      }
     } catch (err) {
       console.log(err.response);
     }
   }
 
   public async predictWithModel(base64, user) {
-    const model = await this.modelService.findOne({ where: { user: user } });
+    const model = await this.modelService.findOne({ where: { user } });
     const data = JSON.stringify({
       user_app_id: {
-        user_id: user.userId,
-        app_id: user.appId,
+        user_id: process.env.CLAR_USER_ID,
+        app_id: process.env.APP_ID,
       },
       inputs: [
         {
@@ -241,24 +228,25 @@ export class ClarifaiService {
     });
     try {
       const response = await clar.post(
-        `v2/models/${model.modelId}/versions/${model.versionId}/outputs`,
+        `v2/models/${process.env.MODEL_ID}/versions/${model.versionId}/outputs`,
 
         data,
       );
-      if (response.data.status?.code === 21102) {
-        return response.data.status.details;
-      }
+      console.log(response, 'RESPONSE');
+      // if (response.data.status?.code === 21102) {
+      //   return response.data.status.details;
+      // }
 
       return response.data;
     } catch (err) {
-      console.log(err.respose.data.status);
+      console.log(err.response.data);
     }
   }
   async deleteConcept(inputId, conceptId, user) {
     const data = JSON.stringify({
       user_app_id: {
-        user_id: user.userId,
-        app_id: user.appId,
+        user_id: process.env.CLAR_USER_ID,
+        app_id: process.env.APP_ID,
       },
       inputs: [
         {
@@ -280,5 +268,9 @@ export class ClarifaiService {
   }
   catch(err) {
     console.log(err.respose.data.status);
+  }
+
+  async addNegativeConcept(body, id, user) {
+    console.log('log');
   }
 }

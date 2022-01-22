@@ -45,6 +45,7 @@ export class ClarController {
 
   @Post('/inputs')
   async addInputs(@Body() body, @Req() req: RequestWithUser) {
+    console.log(body);
     return await this.clarifaiService.addInputs(body, req.user);
   }
 
@@ -59,8 +60,17 @@ export class ClarController {
     @Req() req: RequestWithUser,
     @Body() body,
   ): Promise<any> {
-    console.log(body, id, 'HYEEE');
     return await this.clarifaiService.updateInputs(body, id, req.user);
+  }
+
+  @Patch('/inputs/:id/negative/:conceptId')
+  async updateInputWNegative(
+    @Param('id') id: string,
+    @Param('conceptId') conceptId: string,
+    @Req() req: RequestWithUser,
+    @Body() body,
+  ): Promise<any> {
+    return await this.clarifaiService.addNegativeConcept(body, id, req.user);
   }
 
   @Delete('/inputs/:id')
@@ -68,19 +78,19 @@ export class ClarController {
     return await this.clarifaiService.deleteInput(id);
   }
 
-  @Post('/model')
-  async createModel(@Body() body, @Req() req: RequestWithUser) {
-    const response = await this.clarifaiService.createModel(body, req.user);
+  // @Post('/model')
+  // async createModel(@Body() body, @Req() req: RequestWithUser) {
+  //   const response = await this.clarifaiService.createModel(body, req.user);
 
-    const newModel = {
-      userId: req.user.id,
-      modelId: response.data.model.id,
-      name: response.data.model.name,
-      appId: response.data.model.app_id,
-      modelType: response.data.model.model_type_id,
-    };
-    return await this.modelService.create(newModel);
-  }
+  //   const newModel = {
+  //     userId: req.user.id,
+  //     modelId: response.data.model.id,
+  //     name: response.data.model.name,
+  //     appId: response.data.model.app_id,
+  //     modelType: response.data.model.model_type_id,
+  //   };
+  //   return await this.modelService.create(newModel);
+  // }
 
   @Patch('/model')
   async updateModel(

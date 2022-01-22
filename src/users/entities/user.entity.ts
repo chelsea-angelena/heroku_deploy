@@ -15,12 +15,12 @@ export class User extends BaseEntity {
 
   @Expose()
   @ApiProperty()
-  @Column({ nullable: true, default: 'Image_Recognition_App' })
+  @Column({ nullable: true })
   appId: string;
 
   @Expose()
   @ApiProperty()
-  @Column({ nullable: true, default: 'dbz5i3r2v8jt' })
+  @Column({ nullable: true })
   userId: string;
 
   @Expose()
